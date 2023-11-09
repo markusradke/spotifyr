@@ -30,6 +30,8 @@ get_artist <- function(id,
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
+    res$genres <- list(tibble('genre' = res$genres))
+
     res
 }
 
@@ -66,6 +68,8 @@ get_artists <- function(ids,
     if (!include_meta_info) {
         res <- res$artists
     }
+
+    res <- res %>% rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
 
     res
 }
