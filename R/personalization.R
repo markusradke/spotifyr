@@ -67,5 +67,8 @@ get_my_top_artists_or_tracks <- function(type = 'artists',
         res <- res$items
     }
 
+    if (type == 'artists') {
+        res <- res %>% rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
+    }
     res
 }
