@@ -69,7 +69,7 @@ get_artists <- function(ids,
         res <- res$artists
     }
 
-    res <- res %>% rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
+    res <- res %>% dplyr::rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
 
     res
 }
