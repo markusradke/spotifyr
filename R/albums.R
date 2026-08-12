@@ -24,11 +24,10 @@ get_album <- function(id,
     }
 
     params <- list(
-        market = market,
-        access_token = authorization
+        market = market
     )
     url <- str_glue('{base_url}/{id}')
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -66,10 +65,9 @@ get_albums <- function(ids,
 
     params <- list(
         ids = paste(ids, collapse = ','),
-        market = market,
-        access_token = authorization
+        market = market
     )
-    res <- RETRY('GET', base_url, query = params, encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -124,11 +122,10 @@ get_album_tracks <- function(id,
     params <- list(
         market = market,
         offset = offset,
-        limit = limit,
-        access_token = authorization
+        limit = limit
     )
     url <- str_glue('{base_url}/{id}/tracks')
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)

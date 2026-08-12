@@ -92,13 +92,10 @@ search_spotify <- function(q,
         market = market,
         limit = limit,
         offset = offset,
-        include_external = include_external,
-        access_token = authorization
+        include_external = include_external
     )
 
-    res <- RETRY('GET', base_url,
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 
@@ -183,13 +180,12 @@ get_label_artists <- function(label = character(),
         type = 'artist',
         market = market,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
     print(params)
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
@@ -272,11 +268,10 @@ get_genre_artists <- function(genre = character(),
         type = 'artist',
         market = market,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 

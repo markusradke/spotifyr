@@ -31,10 +31,7 @@ follow_artists_or_users <- function(type,
             ids = paste0(ids, collapse = ',')
         )
     }
-    res <- RETRY('PUT', base_url,
-                 config(token = authorization),
-                 query = query_params,
-                 encode = 'json')
+    res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = query_params, encode = 'json')
 
     stop_for_status(res)
     res
@@ -69,11 +66,7 @@ follow_playlist <- function(playlist_id,
     params <- list(
         public = public
     )
-
-    res <- RETRY('PUT', url,
-                 config(token = authorization),
-                 body = params,
-                 encode = 'json')
+    res <- RETRY("PUT", url,httr::add_headers(Authorization = paste("Bearer", authorization)), body = params, encode = 'json')
 
     stop_for_status(res)
 
@@ -139,9 +132,8 @@ get_my_followed_artists <- function(limit = 20,
         limit = limit,
         after = after
     )
-    res <- RETRY('GET', base_url, query = params,
-                 config(token = authorization),
-                 encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
     res <- res$artists
@@ -180,10 +172,7 @@ check_me_following <- function(type,
      ids = paste0(ids, collapse = ',')
  )
 
- res <- RETRY('GET', base_url,
-              query = params,
-              config(token = authorization),
-              encode = 'json')
+ res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
  stop_for_status(res)
 
@@ -226,8 +215,7 @@ check_users_following <- function(playlist_id,
     )
     url <- str_glue('{base_url}/{playlist_id}/followers/contains')
 
-    res <- RETRY('GET', url, query = params,
-                 config(token = authorization), encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 

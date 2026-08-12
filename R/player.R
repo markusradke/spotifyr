@@ -18,10 +18,7 @@ get_my_currently_playing <- function(market = NULL,
     base_url <- 'https://api.spotify.com/v1/me/player/currently-playing'
     params <- list(market = market)
 
-    res <- RETRY('GET', base_url,
-                 config(token = authorization),
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 
@@ -74,10 +71,7 @@ get_my_recently_played <- function(limit = 20,
     after = after,
     before = before
   )
-  res <- RETRY('GET', base_url,
-               config(token = authorization),
-               query = params,
-               encode = 'json')
+  res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
   stop_for_status(res)
 
@@ -103,7 +97,7 @@ get_my_devices <- function(authorization = get_spotify_authorization_code()) {
 
   base_url <- 'https://api.spotify.com/v1/me/player/devices'
 
-  res <- RETRY('GET', base_url, config(token = authorization), encode = 'json')
+  res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), encode = 'json')
 
   stop_for_status(res)
 
@@ -133,9 +127,8 @@ get_my_current_playback <- function(market = NULL,
 
   params <- list(market = market)
 
-  res <- RETRY('GET', base_url,
-               config(token = authorization),
-               query = params, encode = 'json')
+  res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -164,10 +157,7 @@ pause_my_playback <- function(device_id = NULL,
 
   base_url <- 'https://api.spotify.com/v1/me/player/pause'
     params <- list(device_id = device_id)
-    res <- RETRY('PUT', base_url,
-                 config(token = authorization),
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
     res
 }
@@ -204,10 +194,7 @@ toggle_my_shuffle <- function(state,
         state = state,
         device_id = device_id
         )
-    res <- RETRY('PUT', base_url,
-                 config(token = authorization),
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
 
     res
@@ -243,11 +230,7 @@ set_my_repeat_mode <- function(state,
     state = state,
     device_id = device_id
   )
-  res <- RETRY('PUT', base_url,
-               config(token = authorization),
-               query = params,
-               encode = 'json')
-
+  res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
   stop_for_status(res)
   res
 }
@@ -280,10 +263,7 @@ set_my_volume <- function(volume_percent = 50,
     volume_percent = volume_percent,
     device_id = device_id
   )
-  res <- RETRY('PUT', base_url,
-               config(token = authorization),
-               query = params,
-               encode = 'json')
+  res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
   stop_for_status(res)
   res
 }
@@ -388,9 +368,7 @@ start_my_playback <- function(device_id = NULL,
     offset = offset,
     position_ms = position_ms
   )
-  res <- RETRY('PUT', base_url, query = query_params,
-               config(token = authorization),
-               body = body_params, encode = 'json')
+  res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = query_params,body = body_params, encode = 'json')
 
   stop_for_status(res)
 
@@ -424,10 +402,7 @@ transfer_my_playback <- function(device_ids,
         device_ids = list(device_ids),
         play = play
     )
-
-    res <- RETRY('PUT', base_url,
-                 config(token = authorization),
-                 body = params, encode = 'json')
+    res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)),body = params, encode = 'json')
     stop_for_status(res)
 
     res
@@ -462,11 +437,7 @@ seek_to_position <- function(position_ms,
         position_ms = position_ms,
         device_id = device_id
         )
-
-  res <- RETRY('PUT', base_url,
-               config(token = authorization),
-               query = params, encode = 'json')
-
+  res <- RETRY("PUT", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
   stop_for_status(res)
 
   res

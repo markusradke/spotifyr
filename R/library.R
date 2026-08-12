@@ -43,10 +43,7 @@ get_my_saved_albums <- function(limit = 20,
         offset = offset,
         market = market
     )
-
-    res <- RETRY('GET', base_url,
-                 query = params,
-                 config(token = authorization), encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 
@@ -100,11 +97,7 @@ get_my_saved_tracks <- function(limit = 20,
         offset = offset,
         market = market
     )
-
-    res <- RETRY('GET', base_url, query = params,
-                 config(token = authorization),
-                 encode = 'json',
-                 terminate_on = c(401, 403, 404))
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json',terminate_on = c(401, 403, 404))
 
     stop_for_status(res)
 

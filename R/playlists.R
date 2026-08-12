@@ -35,12 +35,11 @@ get_playlist <- function(playlist_id,
 
     params <- list(
         fields = paste(fields, collapse = ','),
-        market = market,
-        access_token = authorization
+        market = market
     )
 
     # stopping is built into query_playlist()
-    init_query <- query_playlist(url, params = params)
+    init_query <- query_playlist(url, params = params, authorization)
     # identify how many pages there are
     total_tracks <- pluck(init_query, "tracks", "total")
     if (total_tracks > 100) {
@@ -50,7 +49,7 @@ get_playlist <- function(playlist_id,
         # create page urls
         page_urls <- str_glue("{url}/tracks?offset={offsets}&limit=100")
         # query api
-        other_pages <- map(page_urls, query_playlist, params)
+        other_pages <- map(page_urls, query_playlist, params, authorization)
         # merge the song track results
         all_items <- bind_rows(
             pluck(init_query, "tracks", "items"),
@@ -112,10 +111,9 @@ get_playlist_tracks <- function(playlist_id,
         fields = ifelse(!is.null(fields), paste0('items(', paste0(fields, collapse = ','), ')'), ''),
         limit = limit,
         offset = offset,
-        market = market,
-        access_token = authorization
+        market = market
     )
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -164,7 +162,7 @@ get_my_playlists <- function(limit = 20,
         limit = limit,
         offset = offset
     )
-    res <- RETRY('GET', base_url, query = params, config(token = authorization), encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -219,11 +217,7 @@ get_user_playlists <- function(user_id,
         limit = limit,
         offset = offset
     )
-
-    res <- RETRY('GET', url,
-                 query = params,
-                 config(token = authorization),
-                 encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -255,7 +249,8 @@ get_playlist_cover_image <- function(playlist_id,
                                      ) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/images')
-    res <- RETRY('GET', url, config(token = authorization), encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), encode = 'json')
+    
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -445,11 +440,7 @@ change_playlist_details <- function(playlist_id,
         collaborative  = collaborative,
         description = description
     )
-
-    res <- RETRY('PUT', url,
-                 body = params,
-                 config(token = authorization),
-                 encode = 'json')
+    res <- RETRY("PUT", url,httr::add_headers(Authorization = paste("Bearer", authorization)), body = params, encode = 'json')
 
     stop_for_status(res)
 
