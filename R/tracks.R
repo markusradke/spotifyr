@@ -13,11 +13,9 @@ get_track_audio_analysis <- function(id,
 
     base_url <- 'https://api.spotify.com/v1/audio-analysis'
 
-    params <- list(
-        access_token = authorization
-    )
     url <- str_glue('{base_url}/{id}')
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), encode = 'json')
+    
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -49,11 +47,11 @@ get_track_audio_features <- function(ids,
     base_url <- 'https://api.spotify.com/v1/audio-features'
 
     params <- list(
-        access_token = authorization,
         ids = paste0(ids, collapse = ',')
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+    
     stop_for_status(res)
 
     features <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -84,14 +82,11 @@ get_track <- function(id,
     }
 
     params <- list(
-        market = market,
-        access_token = authorization
+        market = market
     )
     url <- str_glue('{base_url}/{id}')
 
-    res <- RETRY('GET', url,
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 
@@ -129,11 +124,11 @@ get_tracks <- function(ids,
 
     params <- list(
         ids = paste(ids, collapse = ','),
-        market = market,
-        access_token = authorization
+        market = market
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+    
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),

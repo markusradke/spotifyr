@@ -29,7 +29,8 @@ get_show <- function(id,
     market = market
   )
   url <- str_glue('{base_url}/{id}')
-  res <- RETRY('GET', url, query = params, config(token = authorization), encode = 'json')
+  res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -63,7 +64,8 @@ get_shows <- function(ids, market = NULL, authorization = get_spotify_authorizat
     ids = paste(ids, collapse = ','),
     market = market
   )
-  res <- RETRY('GET', base_url, query = params, config(token = authorization), encode = 'json')
+  res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+  
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -120,7 +122,8 @@ get_show_episodes <- function(id, limit = 20, offset = 0, market = NULL, authori
     limit = limit
   )
   url <- str_glue('{base_url}/{id}/episodes')
-  res <- RETRY('GET', url, query = params, config(token = authorization), encode = 'json')
+  res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+  
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)

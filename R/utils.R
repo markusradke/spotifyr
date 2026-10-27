@@ -106,9 +106,10 @@ dedupe_album_names <- function(df, album_name_col = 'album_name', album_release_
 #' @importFrom jsonlite fromJSON
 #' @keywords internal
 
-query_playlist <- function(url, params) {
+query_playlist <- function(url, params, authorization) {
 
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
+    
     httr::stop_for_status(res)
 
     res <- jsonlite::fromJSON(

@@ -15,9 +15,7 @@ get_my_profile <- function(authorization = get_spotify_authorization_code()) {
 
     base_url <- 'https://api.spotify.com/v1/me/'
 
-    res <- RETRY('GET', base_url,
-                 config(token = authorization),
-                 encode = 'json')
+    res <- RETRY("GET", base_url,httr::add_headers(Authorization = paste("Bearer", authorization)), encode = 'json')
 
     stop_for_status(res)
 
@@ -49,8 +47,7 @@ get_user_profile <- function(user_id,
 
     base_url <- 'https://api.spotify.com/v1/users'
     url <- str_glue('{base_url}/{user_id}')
-    params = list(access_token = authorization)
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), encode = 'json')
     stop_for_status(res)
     profile <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
                         flatten = TRUE) %>%

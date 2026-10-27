@@ -53,10 +53,7 @@ get_my_top_artists_or_tracks <- function(type = 'artists',
     )
     url <- str_glue('{base_url}/{type}')
 
-    res <- RETRY('GET', url,
-                 config(token = authorization),
-                 query = params,
-                 encode = 'json')
+    res <- RETRY("GET", url,httr::add_headers(Authorization = paste("Bearer", authorization)), query = params, encode = 'json')
 
     stop_for_status(res)
 
