@@ -46,7 +46,7 @@ get_my_saved_albums <- function(limit = 20,
 
     res <- RETRY('GET', base_url,
                  query = params,
-                 config(token = authorization), encode = 'json')
+                 spotify_auth(authorization), encode = 'json')
 
     stop_for_status(res)
 
@@ -102,7 +102,7 @@ get_my_saved_tracks <- function(limit = 20,
     )
 
     res <- RETRY('GET', base_url, query = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json',
                  terminate_on = c(401, 403, 404))
 

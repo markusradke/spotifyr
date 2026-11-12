@@ -19,7 +19,7 @@ get_my_currently_playing <- function(market = NULL,
     params <- list(market = market)
 
     res <- RETRY('GET', base_url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  query = params,
                  encode = 'json')
 
@@ -75,7 +75,7 @@ get_my_recently_played <- function(limit = 20,
     before = before
   )
   res <- RETRY('GET', base_url,
-               config(token = authorization),
+               spotify_auth(authorization),
                query = params,
                encode = 'json')
 
@@ -103,7 +103,7 @@ get_my_devices <- function(authorization = get_spotify_authorization_code()) {
 
   base_url <- 'https://api.spotify.com/v1/me/player/devices'
 
-  res <- RETRY('GET', base_url, config(token = authorization), encode = 'json')
+  res <- RETRY('GET', base_url, spotify_auth(authorization), encode = 'json')
 
   stop_for_status(res)
 
@@ -134,7 +134,7 @@ get_my_current_playback <- function(market = NULL,
   params <- list(market = market)
 
   res <- RETRY('GET', base_url,
-               config(token = authorization),
+               spotify_auth(authorization),
                query = params, encode = 'json')
   stop_for_status(res)
 
@@ -165,7 +165,7 @@ pause_my_playback <- function(device_id = NULL,
   base_url <- 'https://api.spotify.com/v1/me/player/pause'
     params <- list(device_id = device_id)
     res <- RETRY('PUT', base_url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  query = params,
                  encode = 'json')
     stop_for_status(res)
@@ -205,7 +205,7 @@ toggle_my_shuffle <- function(state,
         device_id = device_id
         )
     res <- RETRY('PUT', base_url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  query = params,
                  encode = 'json')
     stop_for_status(res)
@@ -244,7 +244,7 @@ set_my_repeat_mode <- function(state,
     device_id = device_id
   )
   res <- RETRY('PUT', base_url,
-               config(token = authorization),
+               spotify_auth(authorization),
                query = params,
                encode = 'json')
 
@@ -281,7 +281,7 @@ set_my_volume <- function(volume_percent = 50,
     device_id = device_id
   )
   res <- RETRY('PUT', base_url,
-               config(token = authorization),
+               spotify_auth(authorization),
                query = params,
                encode = 'json')
   stop_for_status(res)
@@ -312,7 +312,7 @@ skip_my_playback <- function(device_id = NULL,
         device_id = device_id
     )
 
-    res <- RETRY('POST', base_url, config(token = authorization),
+    res <- RETRY('POST', base_url, spotify_auth(authorization),
                  query = params,
                  encode = 'json')
     stop_for_status(res)
@@ -341,7 +341,7 @@ skip_my_playback_previous <- function(device_id = NULL,
     )
 
     res <- RETRY('POST', base_url,
-                 config(token = authorization), query = params, encode = 'json')
+                 spotify_auth(authorization), query = params, encode = 'json')
     stop_for_status(res)
     res
 
@@ -389,7 +389,7 @@ start_my_playback <- function(device_id = NULL,
     position_ms = position_ms
   )
   res <- RETRY('PUT', base_url, query = query_params,
-               config(token = authorization),
+               spotify_auth(authorization),
                body = body_params, encode = 'json')
 
   stop_for_status(res)
@@ -426,7 +426,7 @@ transfer_my_playback <- function(device_ids,
     )
 
     res <- RETRY('PUT', base_url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  body = params, encode = 'json')
     stop_for_status(res)
 
@@ -464,7 +464,7 @@ seek_to_position <- function(position_ms,
         )
 
   res <- RETRY('PUT', base_url,
-               config(token = authorization),
+               spotify_auth(authorization),
                query = params, encode = 'json')
 
   stop_for_status(res)

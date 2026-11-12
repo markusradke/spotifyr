@@ -54,7 +54,7 @@ get_my_top_artists_or_tracks <- function(type = 'artists',
     url <- str_glue('{base_url}/{type}')
 
     res <- RETRY('GET', url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  query = params,
                  encode = 'json')
 

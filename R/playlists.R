@@ -35,12 +35,11 @@ get_playlist <- function(playlist_id,
 
     params <- list(
         fields = paste(fields, collapse = ','),
-        market = market,
-        access_token = authorization
+        market = market
     )
 
     # stopping is built into query_playlist()
-    init_query <- query_playlist(url, params = params)
+    init_query <- query_playlist(url, params = params, authorization = authorization)
     # identify how many pages there are
     total_tracks <- pluck(init_query, "tracks", "total")
     if (total_tracks > 100) {
@@ -50,7 +49,7 @@ get_playlist <- function(playlist_id,
         # create page urls
         page_urls <- str_glue("{url}/tracks?offset={offsets}&limit=100")
         # query api
-        other_pages <- map(page_urls, query_playlist, params)
+        other_pages <- map(page_urls, query_playlist, params, authorization)
         # merge the song track results
         all_items <- bind_rows(
             pluck(init_query, "tracks", "items"),
@@ -112,10 +111,9 @@ get_playlist_tracks <- function(playlist_id,
         fields = ifelse(!is.null(fields), paste0('items(', paste0(fields, collapse = ','), ')'), ''),
         limit = limit,
         offset = offset,
-        market = market,
-        access_token = authorization
+        market = market
     )
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -164,7 +162,7 @@ get_my_playlists <- function(limit = 20,
         limit = limit,
         offset = offset
     )
-    res <- RETRY('GET', base_url, query = params, config(token = authorization), encode = 'json')
+    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -222,7 +220,7 @@ get_user_playlists <- function(user_id,
 
     res <- RETRY('GET', url,
                  query = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
 
     stop_for_status(res)
@@ -255,7 +253,7 @@ get_playlist_cover_image <- function(playlist_id,
                                      ) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/images')
-    res <- RETRY('GET', url, config(token = authorization), encode = 'json')
+    res <- RETRY('GET', url, spotify_auth(authorization), encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
@@ -298,7 +296,7 @@ create_playlist <- function(user_id,
 
     res <- RETRY('POST', url,
                  body = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
 
     stop_for_status(res)
@@ -359,7 +357,7 @@ add_tracks_to_playlist <- function(playlist_id,
     )
 
     res <- RETRY('POST', url, body = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
 
     stop_for_status(res)
@@ -405,7 +403,7 @@ remove_tracks_from_playlist <- function(playlist_id,
     params <- toJSON(list(tracks = uris_list), auto_unbox = T)
 
     res <- RETRY('DELETE', url, body = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
     stop_for_status(res)
 
@@ -448,7 +446,7 @@ change_playlist_details <- function(playlist_id,
 
     res <- RETRY('PUT', url,
                  body = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
 
     stop_for_status(res)

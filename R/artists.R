@@ -15,13 +15,11 @@ get_artist <- function(id,
 
     base_url <- 'https://api.spotify.com/v1/artists'
 
-    params <- list(
-        access_token = authorization
-    )
+    params <- list()
     url <- str_glue('{base_url}/{id}')
 
     res <- RETRY(verb = 'GET', url,
-                 query = params,
+                 query = params, spotify_auth(authorization),
                  encode = 'json',
                  terminate_on = c(401, 403, 404)
                  )
@@ -56,11 +54,10 @@ get_artists <- function(ids,
     base_url <- 'https://api.spotify.com/v1/artists'
 
     params <- list(
-        ids = paste(ids, collapse = ','),
-        access_token = authorization
+        ids = paste(ids, collapse = ',')
     )
 
-    res <- RETRY(verb = 'GET', base_url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(verb = 'GET', base_url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -123,14 +120,13 @@ get_artist_albums <- function(id,
         include_groups = paste(include_groups, collapse = ','),
         market = market,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
     url <- str_glue('{base_url}/{id}/albums')
 
     res <- RETRY(verb = 'GET', url,
-                 query = params,
+                 query = params, spotify_auth(authorization),
                  encode = 'json', terminate_on = c(401, 403, 404))
 
     stop_for_status(res)
@@ -173,11 +169,10 @@ get_artist_top_tracks <- function(id,
     }
 
     params <- list(
-        market = market,
-        access_token = authorization
+        market = market
     )
     url <- str_glue('{base_url}/{id}/top-tracks')
-    res <- RETRY(verb = 'GET', url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(verb = 'GET', url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -206,11 +201,9 @@ get_related_artists <- function(id,
 
     base_url <- 'https://api.spotify.com/v1/artists'
 
-    params <- list(
-        access_token = authorization
-    )
+    params <- list()
     url <- str_glue('{base_url}/{id}/related-artists')
-    res <- RETRY(verb = 'GET', url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(verb = 'GET', url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)

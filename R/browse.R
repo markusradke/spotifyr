@@ -18,11 +18,9 @@ get_categories <- function(authorization = get_spotify_access_token(),
 
     url <- 'https://api.spotify.com/v1/browse/categories'
 
-    params <- list(
-        access_token = authorization
-    )
+    params <- list()
 
-    res <- RETRY(verb = 'GET', url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(verb = 'GET', url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
     stop_for_status(res)
 
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -63,11 +61,10 @@ get_category <- function(category_id,
 
     params <- list(
         country = country,
-        locale = locale,
-        access_token = authorization
+        locale = locale
     )
     res <- RETRY('GET', url,
-                 query = params,
+                 query = params, spotify_auth(authorization),
                  encode = 'json',
                  terminate_on = c(401, 403, 404))
 
@@ -126,12 +123,11 @@ get_category_playlists <- function(category_id = "party",
     params <- list(
         country = country,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
     res <- RETRY('GET', query_url,
-                 query = params,
+                 query = params, spotify_auth(authorization),
                  encode = 'json', terminate_on = c(401, 403, 404))
 
     stop_for_status(res)
@@ -192,11 +188,10 @@ get_new_releases <- function(country = NULL,
     params <- list(
         country = country,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
 
     stop_for_status(res)
 
@@ -276,11 +271,10 @@ get_featured_playlists <- function(locale = NULL,
         country = country,
         timestamp = timestamp,
         limit = limit,
-        offset = offset,
-        access_token = authorization
+        offset = offset
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
 
     stop_for_status(res)
 
@@ -487,11 +481,10 @@ get_recommendations <- function(limit = 20,
         target_speechiness = target_speechiness,
         target_tempo = target_tempo,
         target_time_signature = target_time_signature,
-        target_valence = target_valence,
-        access_token = authorization
+        target_valence = target_valence
     )
 
-    res <- RETRY('GET', base_url, query = params, encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
     if (!include_seeds_in_response) {

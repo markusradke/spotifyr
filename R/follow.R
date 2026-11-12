@@ -32,7 +32,7 @@ follow_artists_or_users <- function(type,
         )
     }
     res <- RETRY('PUT', base_url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  query = query_params,
                  encode = 'json')
 
@@ -71,7 +71,7 @@ follow_playlist <- function(playlist_id,
     )
 
     res <- RETRY('PUT', url,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  body = params,
                  encode = 'json')
 
@@ -103,7 +103,7 @@ unfollow_playlist <- function(playlist_id,
     url <- str_glue('{base_url}/{playlist_id}/followers')
 
     res <- RETRY('DELETE', url,
-                 config(token = authorization), encode = 'json')
+                 spotify_auth(authorization), encode = 'json')
 
     stop_for_status(res)
 
@@ -140,7 +140,7 @@ get_my_followed_artists <- function(limit = 20,
         after = after
     )
     res <- RETRY('GET', base_url, query = params,
-                 config(token = authorization),
+                 spotify_auth(authorization),
                  encode = 'json')
     stop_for_status(res)
     res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -182,7 +182,7 @@ check_me_following <- function(type,
 
  res <- RETRY('GET', base_url,
               query = params,
-              config(token = authorization),
+              spotify_auth(authorization),
               encode = 'json')
 
  stop_for_status(res)
@@ -227,7 +227,7 @@ check_users_following <- function(playlist_id,
     url <- str_glue('{base_url}/{playlist_id}/followers/contains')
 
     res <- RETRY('GET', url, query = params,
-                 config(token = authorization), encode = 'json')
+                 spotify_auth(authorization), encode = 'json')
 
     stop_for_status(res)
 

@@ -36,6 +36,24 @@ verify_result <- function(res) {
     }
 }
 
+#' Build the Spotify Authorization Header
+#'
+#' Spotify no longer accepts the access token as an \code{access_token}
+#' query parameter; it must be sent as an \code{Authorization: Bearer} header.
+#'
+#' @param authorization Either an access token string (e.g. from
+#' \code{get_spotify_access_token()}) or an \code{httr} Token object
+#' (e.g. from \code{get_spotify_authorization_code()}).
+#' @keywords internal
+#' @return An \code{httr} request config to pass to \code{RETRY()}.
+
+spotify_auth <- function(authorization) {
+    if (inherits(authorization, 'Token')) {
+        return(httr::spotify_auth(authorization))
+    }
+    httr::add_headers(Authorization = paste('Bearer', authorization))
+}
+
 #' Valid Authorization Scopes
 #'
 #' A vector of valid scopes for \code{\link{get_spotify_authorization_code}}.
@@ -106,9 +124,9 @@ dedupe_album_names <- function(df, album_name_col = 'album_name', album_release_
 #' @importFrom jsonlite fromJSON
 #' @keywords internal
 
-query_playlist <- function(url, params) {
+query_playlist <- function(url, params, authorization) {
 
-    res <- RETRY('GET', url, query = params, encode = 'json')
+    res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
     httr::stop_for_status(res)
 
     res <- jsonlite::fromJSON(
