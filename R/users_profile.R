@@ -12,16 +12,16 @@
 #' @export
 
 get_my_profile <- function(authorization = get_spotify_authorization_code()) {
-
     base_url <- 'https://api.spotify.com/v1/me/'
 
-    res <- RETRY('GET', base_url,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY('GET', base_url, spotify_auth(authorization), encode = 'json')
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE) %>%
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    ) %>%
         unlist() %>%
         t() %>%
         as_tibble()
@@ -43,16 +43,18 @@ get_my_profile <- function(authorization = get_spotify_authorization_code()) {
 #' @importFrom tibble as_tibble
 #' @export
 
-get_user_profile <- function(user_id,
-                             authorization = get_spotify_access_token()
-                             ) {
-
+get_user_profile <- function(
+    user_id,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/users'
     url <- str_glue('{base_url}/{user_id}')
     res <- RETRY('GET', url, spotify_auth(authorization), encode = 'json')
     stop_for_status(res)
-    profile <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                        flatten = TRUE) %>%
+    profile <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    ) %>%
         unlist() %>%
         t() %>%
         as_tibble()

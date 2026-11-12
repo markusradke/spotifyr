@@ -25,6 +25,7 @@ get_album <- function(id,
 
     params <- list(
         market = market
+        market = market
     )
     url <- str_glue('{base_url}/{id}')
     res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
@@ -65,6 +66,7 @@ get_albums <- function(ids,
 
     params <- list(
         ids = paste(ids, collapse = ','),
+        market = market
         market = market
     )
     res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
@@ -122,6 +124,7 @@ get_album_tracks <- function(id,
     params <- list(
         market = market,
         offset = offset,
+        limit = limit
         limit = limit
     )
     url <- str_glue('{base_url}/{id}/tracks')

@@ -25,11 +25,12 @@
 #' @family playlist functions
 #' @export
 
-get_playlist <- function(playlist_id,
-                         fields = NULL,
-                         market = NULL,
-                         authorization = get_spotify_access_token()
-                         ) {
+get_playlist <- function(
+    playlist_id,
+    fields = NULL,
+    market = NULL,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}')
 
@@ -39,7 +40,11 @@ get_playlist <- function(playlist_id,
     )
 
     # stopping is built into query_playlist()
-    init_query <- query_playlist(url, params = params, authorization = authorization)
+    init_query <- query_playlist(
+        url,
+        params = params,
+        authorization = authorization
+    )
     # identify how many pages there are
     total_tracks <- pluck(init_query, "tracks", "total")
     if (total_tracks > 100) {
@@ -97,25 +102,39 @@ get_playlist <- function(playlist_id,
 #' @family track functions
 #' @export
 
-get_playlist_tracks <- function(playlist_id,
-                                fields = NULL,
-                                limit = 100,
-                                offset = 0,
-                                market = NULL,
-                                authorization = get_spotify_access_token(),
-                                include_meta_info = FALSE) {
-
+get_playlist_tracks <- function(
+    playlist_id,
+    fields = NULL,
+    limit = 100,
+    offset = 0,
+    market = NULL,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/tracks')
     params <- list(
-        fields = ifelse(!is.null(fields), paste0('items(', paste0(fields, collapse = ','), ')'), ''),
+        fields = ifelse(
+            !is.null(fields),
+            paste0('items(', paste0(fields, collapse = ','), ')'),
+            ''
+        ),
         limit = limit,
         offset = offset,
         market = market
     )
-    res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items
@@ -152,19 +171,29 @@ get_playlist_tracks <- function(playlist_id,
 #' @family playlist functions
 #' @export
 
-get_my_playlists <- function(limit = 20,
-                             offset = 0,
-                             authorization = get_spotify_authorization_code(),
-                             include_meta_info = FALSE) {
-
+get_my_playlists <- function(
+    limit = 20,
+    offset = 0,
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/me/playlists'
     params <- list(
         limit = limit,
         offset = offset
     )
-    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items
@@ -204,12 +233,13 @@ get_my_playlists <- function(limit = 20,
 #' @family playlist functions
 #' @export
 
-get_user_playlists <- function(user_id,
-                               limit = 20,
-                               offset = 0,
-                               authorization = get_spotify_authorization_code(),
-                               include_meta_info = FALSE) {
-
+get_user_playlists <- function(
+    user_id,
+    limit = 20,
+    offset = 0,
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/users'
     url <- str_glue('{base_url}/{user_id}/playlists')
 
@@ -218,13 +248,19 @@ get_user_playlists <- function(user_id,
         offset = offset
     )
 
-    res <- RETRY('GET', url,
-                 query = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items
@@ -248,14 +284,18 @@ get_user_playlists <- function(user_id,
 #' \href{https://developer.spotify.com/documentation/web-api/reference/playlists/get-playlist-cover/}{Spotify Web API Documentation} for more information.
 #' @export
 
-get_playlist_cover_image <- function(playlist_id,
-                                     authorization = get_spotify_authorization_code()
-                                     ) {
+get_playlist_cover_image <- function(
+    playlist_id,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/images')
     res <- RETRY('GET', url, spotify_auth(authorization), encode = 'json')
     stop_for_status(res)
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     res
 }
@@ -277,33 +317,38 @@ get_playlist_cover_image <- function(playlist_id,
 #' @family playlist functions
 #' @export
 
-create_playlist <- function(user_id,
-                            name,
-                            public = TRUE,
-                            collaborative = FALSE,
-                            description = NULL,
-                            authorization = get_spotify_authorization_code()
-                            ) {
+create_playlist <- function(
+    user_id,
+    name,
+    public = TRUE,
+    collaborative = FALSE,
+    description = NULL,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/users'
     url <- str_glue('{base_url}/{user_id}/playlists')
 
     params <- list(
         name = name,
         public = public,
-        collaborative  = collaborative,
+        collaborative = collaborative,
         description = description
     )
 
-    res <- RETRY('POST', url,
-                 body = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'POST',
+        url,
+        body = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
     res <- fromJSON(
         content(res, as = 'text', encoding = 'UTF-8'),
-        flatten = TRUE)
+        flatten = TRUE
+    )
 
     res
 }
@@ -340,13 +385,20 @@ create_playlist <- function(user_id,
 #' @family playlist functions
 #' @export
 
-add_tracks_to_playlist <- function(playlist_id,
-                                   uris,
-                                   position = NULL,
-                                   authorization = get_spotify_authorization_code()
-                                   ) {
-
-    uris <- purrr::map_chr(uris, ~ifelse(stringr::str_detect(.x, "\\:"), .x, paste0("spotify:track:", .x)))
+add_tracks_to_playlist <- function(
+    playlist_id,
+    uris,
+    position = NULL,
+    authorization = get_spotify_authorization_code()
+) {
+    uris <- purrr::map_chr(
+        uris,
+        ~ ifelse(
+            stringr::str_detect(.x, "\\:"),
+            .x,
+            paste0("spotify:track:", .x)
+        )
+    )
 
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/tracks')
@@ -356,15 +408,20 @@ add_tracks_to_playlist <- function(playlist_id,
         uris = uris
     )
 
-    res <- RETRY('POST', url, body = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'POST',
+        url,
+        body = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
     res <- fromJSON(
         content(res, as = 'text', encoding = 'UTF-8'),
-        flatten = TRUE)
+        flatten = TRUE
+    )
 
     res
 }
@@ -388,13 +445,13 @@ add_tracks_to_playlist <- function(playlist_id,
 #' \code{DELETE} request, with a meaningful error message if the operation was not successful.
 #' @export
 
-remove_tracks_from_playlist <- function(playlist_id,
-                                        uris,
-                                        authorization = get_spotify_authorization_code()) {
+remove_tracks_from_playlist <- function(
+    playlist_id,
+    uris,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/tracks/')
-
-
 
     playlist_id <- "0yyGrQtW5Nm5we8dHcNbgj"
 
@@ -402,13 +459,19 @@ remove_tracks_from_playlist <- function(playlist_id,
     uris_list <- lapply(uris, function(x) list(uri = x))
     params <- toJSON(list(tracks = uris_list), auto_unbox = T)
 
-    res <- RETRY('DELETE', url, body = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'DELETE',
+        url,
+        body = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     res
 }
@@ -427,33 +490,36 @@ remove_tracks_from_playlist <- function(playlist_id,
 #' \code{PUT} request, with a meaningful error message if the operation was not successful.
 #' @export
 
-change_playlist_details <- function(playlist_id,
-                                    name = NULL,
-                                    public = NULL,
-                                    collaborative = NULL,
-                                    description = NULL,
-                                    authorization = get_spotify_authorization_code()
-                                    ) {
+change_playlist_details <- function(
+    playlist_id,
+    name = NULL,
+    public = NULL,
+    collaborative = NULL,
+    description = NULL,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}')
 
     params <- list(
         name = name,
         public = public,
-        collaborative  = collaborative,
+        collaborative = collaborative,
         description = description
     )
 
-    res <- RETRY('PUT', url,
-                 body = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'PUT',
+        url,
+        body = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
     res
 }
-
 
 
 #' Tidy a Playlist
@@ -489,34 +555,52 @@ tidy <- function(x, ...) {
 tidy.playlist <- function(x, ...) {
     # determine unneeded columns
     # the added by features can all bne derived by the `added_by_uri` col
-    unneeded <- c("added_by_href", "added_by_uri", "added_by_external_urls_spotify",
-                  # album information can be fetched with get_album
-                  "album_uri", "album_href", "album_artists", "album_album_type",
-                  "album_images", "album_release_date", "album_release_date_precision",
-                  "album_total_tracks", "album_type", "album_external_urls_spotify",
-                  "album_available_markets",
-                  # do not need uri as that can be created from "spotify:{type}:{id}"
-                  "uri")
+    unneeded <- c(
+        "added_by_href",
+        "added_by_uri",
+        "added_by_external_urls_spotify",
+        # album information can be fetched with get_album
+        "album_uri",
+        "album_href",
+        "album_artists",
+        "album_album_type",
+        "album_images",
+        "album_release_date",
+        "album_release_date_precision",
+        "album_total_tracks",
+        "album_type",
+        "album_external_urls_spotify",
+        "album_available_markets",
+        # do not need uri as that can be created from "spotify:{type}:{id}"
+        "uri"
+    )
 
     # clean col names
     track_items <- pluck(x, "tracks", "items")
-    colnames(track_items) <- make_clean_names(str_remove(names(track_items), "track"))
+    colnames(track_items) <- make_clean_names(str_remove(
+        names(track_items),
+        "track"
+    ))
 
     tidied <- track_items %>%
         # select(artists) %>%
         mutate(artist_names = map(artists, pull, "name")) %>%
-        select( -all_of(unneeded) ) %>%
-        select(track_name = name,
-               album_name, id,
-               artist_names, added_at,
-               duration_ms, popularity, track_number,
-               available_markets,
-               everything() # everything else goes after available markets
-               )
+        select(-all_of(unneeded)) %>%
+        select(
+            track_name = name,
+            album_name,
+            id,
+            artist_names,
+            added_at,
+            duration_ms,
+            popularity,
+            track_number,
+            available_markets,
+            everything() # everything else goes after available markets
+        )
 
     dplyr::as_tibble(tidied)
 }
-
 
 
 #' Print method for playlist object
@@ -526,15 +610,22 @@ tidy.playlist <- function(x, ...) {
 #' @export
 
 print.playlist <- function(x, ...) {
-
-    to_show <- c("description", "tracks", "type", "href", "images", "public", "collaborative")
+    to_show <- c(
+        "description",
+        "tracks",
+        "type",
+        "href",
+        "images",
+        "public",
+        "collaborative"
+    )
 
     frms <- format(c(
         paste(x$name, "by", x$owner$display_name),
         paste(x$tracks$total, "tracks"),
         paste(x$followers$total, "followers"),
         x$external_urls$spotify
-        ))
+    ))
 
     cat(frms, "\n", fill = TRUE)
     str(x[to_show], 1, no.list = T, indent.str = "- ", comp.str = "")

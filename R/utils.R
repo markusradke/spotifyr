@@ -19,7 +19,20 @@ is_uri <- function(s) {
 # Create lookup to classify key: https://developer.spotify.com/web-api/get-audio-features/
 #' @keywords internal
 #' @return A character vector of the pitch class names
-pitch_class_lookup <- c('C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B')
+pitch_class_lookup <- c(
+    'C',
+    'C#',
+    'D',
+    'D#',
+    'E',
+    'F',
+    'F#',
+    'G',
+    'G#',
+    'A',
+    'A#',
+    'B'
+)
 
 #' Verify API Result
 #'
@@ -68,11 +81,13 @@ spotify_auth <- function(authorization) {
 #' @importFrom rvest html_text html_elements
 
 scopes <- function() {
-    xml2::read_html("https://developer.spotify.com/documentation/general/guides/authorization/scopes/") %>%
-    rvest::html_elements('code') %>%
-    rvest::html_text() %>%
-    unique()
-    }
+    xml2::read_html(
+        "https://developer.spotify.com/documentation/general/guides/authorization/scopes/"
+    ) %>%
+        rvest::html_elements('code') %>%
+        rvest::html_text() %>%
+        unique()
+}
 
 #' Remove duplicate album names
 #'
@@ -87,29 +102,57 @@ scopes <- function() {
 #' possible the original album release (and not re-releases.)
 #' @export
 
-dedupe_album_names <- function(df, album_name_col = 'album_name', album_release_year_col = 'album_release_year') {
-
+dedupe_album_names <- function(
+    df,
+    album_name_col = 'album_name',
+    album_release_year_col = 'album_release_year'
+) {
     album_dupe_regex <- '(deluxe|international|anniversary|version|edition|remaster|re-master|live|mono|stereo)'
 
     base_album_names <- df %>%
         dplyr::mutate(
-          album_name_ = album_name_col,
-          album_release_year_ = album_release_year_col
+            album_name_ = album_name_col,
+            album_release_year_ = album_release_year_col
         ) %>%
         dplyr::filter(!duplicated(tolower(album_name_))) %>%
         dplyr::mutate(
-          base_album_name = gsub(str_glue(' \\(.*{album_dupe_regex}.*\\)'), '', tolower(.data$album_name_)),
-          base_album_name = gsub(str_glue(' \\[.*{album_dupe_regex}.*\\]'), '', .data$base_album_name),
-          base_album_name = gsub(str_glue(':.*{album_dupe_regex}.*'), '', .data$base_album_name),
-          base_album_name = gsub(str_glue(' - .*{album_dupe_regex}.*'), '', .data$base_album_name),
-          base_album = tolower(.data$album_name_) == .data$base_album_name
+            base_album_name = gsub(
+                str_glue(' \\(.*{album_dupe_regex}.*\\)'),
+                '',
+                tolower(.data$album_name_)
+            ),
+            base_album_name = gsub(
+                str_glue(' \\[.*{album_dupe_regex}.*\\]'),
+                '',
+                .data$base_album_name
+            ),
+            base_album_name = gsub(
+                str_glue(':.*{album_dupe_regex}.*'),
+                '',
+                .data$base_album_name
+            ),
+            base_album_name = gsub(
+                str_glue(' - .*{album_dupe_regex}.*'),
+                '',
+                .data$base_album_name
+            ),
+            base_album = tolower(.data$album_name_) == .data$base_album_name
         ) %>%
         dplyr::group_by(.data$base_album_name) %>%
-        dplyr::filter((.data$album_release_year_ == min(.data$album_release_year_)) | base_album) %>%
-        dplyr::mutate(num_albums = dplyr::n(),
-               num_base_albums = sum(.data$base_album)) %>%
+        dplyr::filter(
+            (.data$album_release_year_ == min(.data$album_release_year_)) |
+                base_album
+        ) %>%
+        dplyr::mutate(
+            num_albums = dplyr::n(),
+            num_base_albums = sum(.data$base_album)
+        ) %>%
         dplyr::ungroup() %>%
-        dplyr::filter((.data$base_album == 1) |((.data$num_base_albums == 0 | .data$num_base_albums > 1) & row_number() == 1)) %>%
+        dplyr::filter(
+            (.data$base_album == 1) |
+                ((.data$num_base_albums == 0 | .data$num_base_albums > 1) &
+                    row_number() == 1)
+        ) %>%
         dplyr::pull(.data$album_name_)
 
     df %>%
@@ -125,17 +168,21 @@ dedupe_album_names <- function(df, album_name_col = 'album_name', album_release_
 #' @keywords internal
 
 query_playlist <- function(url, params, authorization) {
-
-    res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     httr::stop_for_status(res)
 
     res <- jsonlite::fromJSON(
-      httr::content(res, as = 'text', encoding = 'UTF-8'),
-      flatten = TRUE
+        httr::content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
     )
 
     res
 }
 
 # currently sourcing in make_clean_names rather than importing janitor entirely
-

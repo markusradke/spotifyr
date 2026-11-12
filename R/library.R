@@ -20,16 +20,19 @@
 #' \url{https://developer.spotify.com/documentation/web-api/reference/library/get-users-saved-albums/} for more information.
 #' @export
 
-get_my_saved_albums <- function(limit = 20,
-                                offset = 0,
-                                market = NULL,
-                                authorization = get_spotify_authorization_code(),
-                                include_meta_info = FALSE) {
-
-   validate_parameters(limit=limit,
-                       offset=offset,
-                       market=market,
-                       include_meta_info=include_meta_info )
+get_my_saved_albums <- function(
+    limit = 20,
+    offset = 0,
+    market = NULL,
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
+    validate_parameters(
+        limit = limit,
+        offset = offset,
+        market = market,
+        include_meta_info = include_meta_info
+    )
 
     base_url <- 'https://api.spotify.com/v1/me/albums'
     if (!is.null(market)) {
@@ -44,19 +47,26 @@ get_my_saved_albums <- function(limit = 20,
         market = market
     )
 
-    res <- RETRY('GET', base_url,
-                 query = params,
-                 spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items
     }
 
-   res
+    res
 }
 
 #' Get User's Saved Tracks
@@ -82,16 +92,19 @@ get_my_saved_albums <- function(limit = 20,
 #' See \url{https://developer.spotify.com/documentation/web-api/reference/users-profile/get-current-users-profile/} for more information.
 #' @export
 
-get_my_saved_tracks <- function(limit = 20,
-                                offset = 0,
-                                market = NULL,
-                                authorization = get_spotify_authorization_code(),
-                                include_meta_info = FALSE) {
-
-    validate_parameters(market=market,
-                        limit=limit,
-                        offset = offset,
-                        include_meta_info = include_meta_info)
+get_my_saved_tracks <- function(
+    limit = 20,
+    offset = 0,
+    market = NULL,
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
+    validate_parameters(
+        market = market,
+        limit = limit,
+        offset = offset,
+        include_meta_info = include_meta_info
+    )
 
     base_url <- 'https://api.spotify.com/v1/me/tracks'
 
@@ -101,15 +114,21 @@ get_my_saved_tracks <- function(limit = 20,
         market = market
     )
 
-    res <- RETRY('GET', base_url, query = params,
-                 spotify_auth(authorization),
-                 encode = 'json',
-                 terminate_on = c(401, 403, 404))
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items

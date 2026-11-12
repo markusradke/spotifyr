@@ -12,16 +12,16 @@
 #' @importFrom assertthat assert_that
 #' @export
 
-follow_artists_or_users <- function(type,
-                                    ids = NULL,
-                                    authorization = get_spotify_authorization_code()
-                                    ) {
-
-    validate_parameters ( artist_or_user = type )
+follow_artists_or_users <- function(
+    type,
+    ids = NULL,
+    authorization = get_spotify_authorization_code()
+) {
+    validate_parameters(artist_or_user = type)
 
     base_url <- 'https://api.spotify.com/v1/me/following'
 
-    if ( is.null(ids)) {
+    if (is.null(ids)) {
         query_params <- list(
             type = type
         )
@@ -31,14 +31,16 @@ follow_artists_or_users <- function(type,
             ids = paste0(ids, collapse = ',')
         )
     }
-    res <- RETRY('PUT', base_url,
-                 spotify_auth(authorization),
-                 query = query_params,
-                 encode = 'json')
+    res <- RETRY(
+        'PUT',
+        base_url,
+        spotify_auth(authorization),
+        query = query_params,
+        encode = 'json'
+    )
 
     stop_for_status(res)
     res
-
 }
 
 #' Add Current User to Followers of Playlist.
@@ -58,11 +60,11 @@ follow_artists_or_users <- function(type,
 #' error message if the operation was not successful.
 #' @export
 
-follow_playlist <- function(playlist_id,
-                            public = FALSE,
-                            authorization = get_spotify_authorization_code()
-                            ) {
-
+follow_playlist <- function(
+    playlist_id,
+    public = FALSE,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/followers')
 
@@ -70,10 +72,13 @@ follow_playlist <- function(playlist_id,
         public = public
     )
 
-    res <- RETRY('PUT', url,
-                 spotify_auth(authorization),
-                 body = params,
-                 encode = 'json')
+    res <- RETRY(
+        'PUT',
+        url,
+        spotify_auth(authorization),
+        body = params,
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
@@ -95,15 +100,14 @@ follow_playlist <- function(playlist_id,
 #' error message if the operation was not successful.
 #' @export
 
-unfollow_playlist <- function(playlist_id,
-                              authorization = get_spotify_authorization_code()
-                              ) {
-
+unfollow_playlist <- function(
+    playlist_id,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
     url <- str_glue('{base_url}/{playlist_id}/followers')
 
-    res <- RETRY('DELETE', url,
-                 spotify_auth(authorization), encode = 'json')
+    res <- RETRY('DELETE', url, spotify_auth(authorization), encode = 'json')
 
     stop_for_status(res)
 
@@ -124,13 +128,13 @@ unfollow_playlist <- function(playlist_id,
 #' the followed artists.
 #' @export
 
-get_my_followed_artists <- function(limit = 20,
-                                    after = NULL,
-                                    authorization = get_spotify_authorization_code(),
-                                    include_meta_info = FALSE) {
-
-    validate_parameters ( limit = limit,
-                          include_meta_info = include_meta_info)
+get_my_followed_artists <- function(
+    limit = 20,
+    after = NULL,
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
+    validate_parameters(limit = limit, include_meta_info = include_meta_info)
 
     base_url <- 'https://api.spotify.com/v1/me/following'
 
@@ -139,11 +143,18 @@ get_my_followed_artists <- function(limit = 20,
         limit = limit,
         after = after
     )
-    res <- RETRY('GET', base_url, query = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
     res <- res$artists
 
     if (!include_meta_info) {
@@ -167,33 +178,36 @@ get_my_followed_artists <- function(limit = 20,
 #' @importFrom httr RETRY
 #' @export
 
-check_me_following <- function(type,
-                               ids,
-                               authorization = get_spotify_authorization_code()) {
+check_me_following <- function(
+    type,
+    ids,
+    authorization = get_spotify_authorization_code()
+) {
+    validate_parameters(artist_or_user = type)
 
- validate_parameters ( artist_or_user = type )
+    base_url <- 'https://api.spotify.com/v1/me/following/contains'
 
- base_url <- 'https://api.spotify.com/v1/me/following/contains'
+    params <- list(
+        type = type,
+        ids = paste0(ids, collapse = ',')
+    )
 
- params <- list(
-     type = type,
-     ids = paste0(ids, collapse = ',')
- )
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
- res <- RETRY('GET', base_url,
-              query = params,
-              spotify_auth(authorization),
-              encode = 'json')
+    stop_for_status(res)
 
- stop_for_status(res)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
- res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                 flatten = TRUE)
-
- tibble(type = type,
-        id = ids,
-        is_following = res)
-
+    tibble(type = type, id = ids, is_following = res)
 }
 
 #' Check if Users Follow a Playlist
@@ -213,11 +227,11 @@ check_me_following <- function(type,
 #' \code{"is_following"} as a logical, boolean variable.
 #' @export
 
-check_users_following <- function(playlist_id,
-                                  ids,
-                                  authorization = get_spotify_authorization_code()
-                                  ) {
-
+check_users_following <- function(
+    playlist_id,
+    ids,
+    authorization = get_spotify_authorization_code()
+) {
     base_url <- 'https://api.spotify.com/v1/playlists'
 
     params <- list(
@@ -226,15 +240,20 @@ check_users_following <- function(playlist_id,
     )
     url <- str_glue('{base_url}/{playlist_id}/followers/contains')
 
-    res <- RETRY('GET', url, query = params,
-                 spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
-    tibble(user_id = ids,
-           playlist_id = playlist_id,
-           is_following = res)
-
+    tibble(user_id = ids, playlist_id = playlist_id, is_following = res)
 }

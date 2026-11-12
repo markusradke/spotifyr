@@ -13,10 +13,11 @@
 #' See the \href{https://developer.spotify.com/documentation/web-api/reference/shows/get-a-show/}{official documentation} for more information.
 #' @export
 
-get_show <- function(id,
-                     market = NULL,
-                     authorization = get_spotify_authorization_code()) {
-
+get_show <- function(
+  id,
+  market = NULL,
+  authorization = get_spotify_authorization_code()
+) {
   base_url <- 'https://api.spotify.com/v1/shows'
 
   if (!is.null(market)) {
@@ -29,7 +30,13 @@ get_show <- function(id,
     market = market
   )
   url <- str_glue('{base_url}/{id}')
-  res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
+  res <- RETRY(
+    'GET',
+    url,
+    query = params,
+    spotify_auth(authorization),
+    encode = 'json'
+  )
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -49,8 +56,12 @@ get_show <- function(id,
 #' Returns a data frame of results containing show data. See \url{https://developer.spotify.com/documentation/web-api/reference/shows/get-several-shows/} for more information.
 #' @export
 
-get_shows <- function(ids, market = NULL, authorization = get_spotify_authorization_code(), include_meta_info = FALSE) {
-
+get_shows <- function(
+  ids,
+  market = NULL,
+  authorization = get_spotify_authorization_code(),
+  include_meta_info = FALSE
+) {
   base_url <- 'https://api.spotify.com/v1/shows'
 
   if (!is.null(market)) {
@@ -63,7 +74,13 @@ get_shows <- function(ids, market = NULL, authorization = get_spotify_authorizat
     ids = paste(ids, collapse = ','),
     market = market
   )
-  res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
+  res <- RETRY(
+    'GET',
+    base_url,
+    query = params,
+    spotify_auth(authorization),
+    encode = 'json'
+  )
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -104,8 +121,14 @@ get_shows <- function(ids, market = NULL, authorization = get_spotify_authorizat
 #' Returns a data frame of results containing show data. See the official API \href{https://developer.spotify.com/documentation/web-api/reference/shows/get-shows-episodes/}{documentation} for more information.
 #' @export
 
-get_show_episodes <- function(id, limit = 20, offset = 0, market = NULL, authorization = get_spotify_authorization_code(), include_meta_info = FALSE) {
-
+get_show_episodes <- function(
+  id,
+  limit = 20,
+  offset = 0,
+  market = NULL,
+  authorization = get_spotify_authorization_code(),
+  include_meta_info = FALSE
+) {
   base_url <- 'https://api.spotify.com/v1/shows'
 
   if (!is.null(market)) {
@@ -120,7 +143,13 @@ get_show_episodes <- function(id, limit = 20, offset = 0, market = NULL, authori
     limit = limit
   )
   url <- str_glue('{base_url}/{id}/episodes')
-  res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
+  res <- RETRY(
+    'GET',
+    url,
+    query = params,
+    spotify_auth(authorization),
+    encode = 'json'
+  )
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)

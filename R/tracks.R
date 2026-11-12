@@ -8,17 +8,27 @@
 #' @family musicology functions
 #' @export
 
-get_track_audio_analysis <- function(id,
-                                     authorization = get_spotify_access_token()) {
-
+get_track_audio_analysis <- function(
+    id,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/audio-analysis'
 
     params <- list()
     url <- str_glue('{base_url}/{id}')
-    res <- RETRY('GET', url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     res
 }
@@ -36,9 +46,10 @@ get_track_audio_analysis <- function(id,
 #' @family musicology functions
 #' @export
 
-get_track_audio_features <- function(ids,
-                                     authorization = get_spotify_access_token()
-                                     ) {
+get_track_audio_features <- function(
+    ids,
+    authorization = get_spotify_access_token()
+) {
     assertthat::assert_that(
         length(ids) <= 100,
         msg = "Too long ids vector. The maximum length of the length of the ids vector is 100."
@@ -50,10 +61,19 @@ get_track_audio_features <- function(ids,
         ids = paste0(ids, collapse = ',')
     )
 
-    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
 
-    features <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    features <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
     features <- features$audio_features %>% as_tibble()
 
     features
@@ -70,14 +90,15 @@ get_track_audio_features <- function(ids,
 #' @family track functions
 #' @export
 
-get_track <- function(id,
-                      market = NULL,
-                      authorization = get_spotify_access_token()) {
-
+get_track <- function(
+    id,
+    market = NULL,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/tracks'
 
     if (!is.null(market)) {
-      validate_market(market)
+        validate_market(market)
     }
 
     params <- list(
@@ -85,14 +106,20 @@ get_track <- function(id,
     )
     url <- str_glue('{base_url}/{id}')
 
-    res <- RETRY('GET', url,
-                 query = params, spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     res
 }
@@ -112,11 +139,12 @@ get_track <- function(id,
 #' @family track functions
 #' @export
 
-get_tracks <- function(ids,
-                       market = NULL,
-                       authorization = get_spotify_access_token(),
-                       include_meta_info = FALSE) {
-
+get_tracks <- function(
+    ids,
+    market = NULL,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/tracks'
 
     if (!is.null(market)) {
@@ -128,11 +156,19 @@ get_tracks <- function(ids,
         market = market
     )
 
-    res <- RETRY('GET', base_url, query = params, spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$tracks

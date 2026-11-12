@@ -45,15 +45,16 @@
 #' search_spotify('radiohead', 'artist')
 #' }
 
-search_spotify <- function(q,
-                           type = c('album', 'artist', 'playlist', 'track', 'show', 'episode'),
-                           market = NULL,
-                           limit = 20,
-                           offset = 0,
-                           include_external = NULL,
-                           authorization = get_spotify_access_token(),
-                           include_meta_info = FALSE) {
-
+search_spotify <- function(
+    q,
+    type = c('album', 'artist', 'playlist', 'track', 'show', 'episode'),
+    market = NULL,
+    limit = 20,
+    offset = 0,
+    include_external = NULL,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/search'
 
     assertthat::assert_that(
@@ -69,22 +70,21 @@ search_spotify <- function(q,
     }
 
     assertthat::assert_that(
-        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit%%1==0,
+        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit %% 1 == 0,
         msg = "The parameter 'limit' must be an integer between 1 and 50"
     )
 
     assertthat::assert_that(
-        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset%%1==0,
+        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset %% 1 == 0,
         msg = "The parameter 'offset' must be an integer between 1 and 50"
     )
-
 
     if (!is.null(include_external)) {
         assertthat::assert_that(
             include_external == 'audio',
             msg = "'include_external' must be 'audio' or an empty string."
         )
-     }
+    }
 
     params <- list(
         q = q,
@@ -95,15 +95,20 @@ search_spotify <- function(q,
         include_external = include_external
     )
 
-    res <- RETRY('GET', base_url,
-                 query = params,
-                 spotify_auth(authorization),
-                 encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info && length(type) == 1) {
         res <- res[[str_glue('{type}s')]]$items %>%
@@ -147,13 +152,13 @@ search_spotify <- function(q,
 #' get_label_artists('brainfeeder')
 #' }
 
-get_label_artists <- function(label = character(),
-                              market = NULL,
-                              limit = 20,
-                              offset = 0,
-                              authorization = get_spotify_access_token()
-                              ) {
-
+get_label_artists <- function(
+    label = character(),
+    market = NULL,
+    limit = 20,
+    offset = 0,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/search'
 
     assertthat::assert_that(
@@ -169,12 +174,12 @@ get_label_artists <- function(label = character(),
     }
 
     assertthat::assert_that(
-        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit%%1==0,
+        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit %% 1 == 0,
         msg = "The parameter 'limit' must be an integer between 1 and 50"
     )
 
     assertthat::assert_that(
-        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset%%1==0,
+        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset %% 1 == 0,
         msg = "The parameter 'offset' must be an integer between 1 and 50"
     )
 
@@ -186,12 +191,19 @@ get_label_artists <- function(label = character(),
         offset = offset
     )
 
-    res <- RETRY('GET', base_url, query = params,
-                 spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
     res <- res[['artists']]$items %>%
         as_tibble() %>%
         mutate(label = label)
@@ -234,12 +246,13 @@ get_label_artists <- function(label = character(),
 #' get_genre_artists('wonky')
 #' }
 
-get_genre_artists <- function(genre = character(),
-                              market = NULL,
-                              limit = 20,
-                              offset = 0,
-                              authorization = get_spotify_access_token()) {
-
+get_genre_artists <- function(
+    genre = character(),
+    market = NULL,
+    limit = 20,
+    offset = 0,
+    authorization = get_spotify_access_token()
+) {
     base_url <- 'https://api.spotify.com/v1/search'
 
     assertthat::assert_that(
@@ -255,12 +268,12 @@ get_genre_artists <- function(genre = character(),
     }
 
     assertthat::assert_that(
-        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit%%1==0,
+        (limit >= 1 & limit <= 50) & is.numeric(limit) & limit %% 1 == 0,
         msg = "The parameter 'limit' must be an integer between 1 and 50"
     )
 
     assertthat::assert_that(
-        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset%%1==0,
+        (offset >= 0 & offset <= 10000) & is.numeric(offset) & offset %% 1 == 0,
         msg = "The parameter 'offset' must be an integer between 1 and 50"
     )
 
@@ -273,15 +286,22 @@ get_genre_artists <- function(genre = character(),
         offset = offset
     )
 
-    res <- RETRY('GET', base_url, query = params,
-                 spotify_auth(authorization), encode = 'json')
+    res <- RETRY(
+        'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
     res
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     artists <- res$artists
 

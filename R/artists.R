@@ -9,24 +9,27 @@
 #' @family artist functions
 #' @export
 
-get_artist <- function(id,
-                       authorization = get_spotify_access_token()
-                       ) {
-
+get_artist <- function(id, authorization = get_spotify_access_token()) {
     base_url <- 'https://api.spotify.com/v1/artists'
 
     params <- list()
     url <- str_glue('{base_url}/{id}')
 
-    res <- RETRY(verb = 'GET', url,
-                 query = params, spotify_auth(authorization),
-                 encode = 'json',
-                 terminate_on = c(401, 403, 404)
-                 )
+    res <- RETRY(
+        verb = 'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     res$genres <- list(tibble('genre' = res$genres))
 
@@ -47,26 +50,39 @@ get_artist <- function(id,
 #' @family artist functions
 #' @export
 
-get_artists <- function(ids,
-                        authorization = get_spotify_access_token(),
-                        include_meta_info = FALSE) {
-
+get_artists <- function(
+    ids,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/artists'
 
     params <- list(
         ids = paste(ids, collapse = ',')
     )
 
-    res <- RETRY(verb = 'GET', base_url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(
+        verb = 'GET',
+        base_url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$artists
     }
 
-    res <- res %>% rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
+    res <- res %>%
+        dplyr::rowwise() %>%
+        mutate(genres = list(tibble('genre' = genres)))
 
     res
 }
@@ -100,14 +116,15 @@ get_artists <- function(ids,
 #' @family artist functions
 #' @export
 
-get_artist_albums <- function(id,
-                              include_groups = c('album', 'single', 'appears_on',
-                                                 'compilation'),
-                              market = NULL,
-                              limit = 20, offset = 0,
-                              authorization = get_spotify_access_token(),
-                              include_meta_info = FALSE) {
-
+get_artist_albums <- function(
+    id,
+    include_groups = c('album', 'single', 'appears_on', 'compilation'),
+    market = NULL,
+    limit = 20,
+    offset = 0,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/artists'
 
     if (!is.null(market)) {
@@ -125,16 +142,21 @@ get_artist_albums <- function(id,
 
     url <- str_glue('{base_url}/{id}/albums')
 
-    res <- RETRY(verb = 'GET', url,
-                 query = params, spotify_auth(authorization),
-                 encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(
+        verb = 'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
 
     stop_for_status(res)
 
     res <- fromJSON(
         content(res, as = 'text', encoding = 'UTF-8'),
         flatten = TRUE
-        )
+    )
 
     if (!include_meta_info) {
         res <- res$items
@@ -155,11 +177,12 @@ get_artist_albums <- function(id,
 #' @family artist functions
 #' @export
 
-get_artist_top_tracks <- function(id,
-                                  market = 'US',
-                                  authorization = get_spotify_access_token(),
-                                  include_meta_info = FALSE) {
-
+get_artist_top_tracks <- function(
+    id,
+    market = 'US',
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/artists'
 
     if (!is.null(market)) {
@@ -172,10 +195,20 @@ get_artist_top_tracks <- function(id,
         market = market
     )
     url <- str_glue('{base_url}/{id}/top-tracks')
-    res <- RETRY(verb = 'GET', url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(
+        verb = 'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$tracks
@@ -195,18 +228,29 @@ get_artist_top_tracks <- function(id,
 #' @family artist functions
 #' @export
 
-get_related_artists <- function(id,
-                                authorization = get_spotify_access_token(),
-                                include_meta_info = FALSE) {
-
+get_related_artists <- function(
+    id,
+    authorization = get_spotify_access_token(),
+    include_meta_info = FALSE
+) {
     base_url <- 'https://api.spotify.com/v1/artists'
 
     params <- list()
     url <- str_glue('{base_url}/{id}/related-artists')
-    res <- RETRY(verb = 'GET', url, query = params, spotify_auth(authorization), encode = 'json', terminate_on = c(401, 403, 404))
+    res <- RETRY(
+        verb = 'GET',
+        url,
+        query = params,
+        spotify_auth(authorization),
+        encode = 'json',
+        terminate_on = c(401, 403, 404)
+    )
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$artists

@@ -12,22 +12,26 @@
 #' @family player functions
 #' @export
 
-get_my_currently_playing <- function(market = NULL,
-                                     authorization = get_spotify_authorization_code()
-                                     ) {
-    base_url <- 'https://api.spotify.com/v1/me/player/currently-playing'
-    params <- list(market = market)
+get_my_currently_playing <- function(
+  market = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  base_url <- 'https://api.spotify.com/v1/me/player/currently-playing'
+  params <- list(market = market)
 
-    res <- RETRY('GET', base_url,
-                 spotify_auth(authorization),
-                 query = params,
-                 encode = 'json')
+  res <- RETRY(
+    'GET',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
 
-    stop_for_status(res)
+  stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+  res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
 
-    res
+  res
 }
 
 #' Get Current User's Recently Played Tracks
@@ -53,20 +57,19 @@ get_my_currently_playing <- function(market = NULL,
 #' @family player functions
 #' @export
 
-get_my_recently_played <- function(limit = 20,
-                                   after = NULL,
-                                   before = NULL,
-                                   authorization = get_spotify_authorization_code(),
-                                   include_meta_info = FALSE) {
-
+get_my_recently_played <- function(
+  limit = 20,
+  after = NULL,
+  before = NULL,
+  authorization = get_spotify_authorization_code(),
+  include_meta_info = FALSE
+) {
   assertthat::assert_that(
     is.null(after) | is.null(before),
     msg = "Either the 'after' or the 'before' parameter must be set to NULL."
-
   )
 
-  validate_parameters(limit=limit)
-
+  validate_parameters(limit = limit)
 
   base_url <- 'https://api.spotify.com/v1/me/player/recently-played'
   params <- list(
@@ -74,10 +77,13 @@ get_my_recently_played <- function(limit = 20,
     after = after,
     before = before
   )
-  res <- RETRY('GET', base_url,
-               spotify_auth(authorization),
-               query = params,
-               encode = 'json')
+  res <- RETRY(
+    'GET',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
 
   stop_for_status(res)
 
@@ -100,7 +106,6 @@ get_my_recently_played <- function(limit = 20,
 #' @export
 
 get_my_devices <- function(authorization = get_spotify_authorization_code()) {
-
   base_url <- 'https://api.spotify.com/v1/me/player/devices'
 
   res <- RETRY('GET', base_url, spotify_auth(authorization), encode = 'json')
@@ -123,19 +128,23 @@ get_my_devices <- function(authorization = get_spotify_authorization_code()) {
 #' @family player functions
 #' @export
 
-get_my_current_playback <- function(market = NULL,
-                                    authorization = get_spotify_authorization_code()
-                                    ) {
-
-  validate_parameters(market=market)
+get_my_current_playback <- function(
+  market = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  validate_parameters(market = market)
 
   base_url <- 'https://api.spotify.com/v1/me/player'
 
   params <- list(market = market)
 
-  res <- RETRY('GET', base_url,
-               spotify_auth(authorization),
-               query = params, encode = 'json')
+  res <- RETRY(
+    'GET',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
   stop_for_status(res)
 
   res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
@@ -158,18 +167,21 @@ get_my_current_playback <- function(market = NULL,
 #' error message if the operation was not successful.
 #' @export
 
-pause_my_playback <- function(device_id = NULL,
-                              authorization = get_spotify_authorization_code()
-                              ) {
-
+pause_my_playback <- function(
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
   base_url <- 'https://api.spotify.com/v1/me/player/pause'
-    params <- list(device_id = device_id)
-    res <- RETRY('PUT', base_url,
-                 spotify_auth(authorization),
-                 query = params,
-                 encode = 'json')
-    stop_for_status(res)
-    res
+  params <- list(device_id = device_id)
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
+  stop_for_status(res)
+  res
 }
 
 #' Toggle shuffle on or off for user’s playback.
@@ -188,29 +200,32 @@ pause_my_playback <- function(device_id = NULL,
 #' @family player functions
 #' @export
 
-toggle_my_shuffle <- function(state,
-                              device_id = NULL,
-                              authorization = get_spotify_authorization_code()
-                              ) {
+toggle_my_shuffle <- function(
+  state,
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  assertthat::assert_that(
+    ## This is different form validate_state(state=state) assertions!
+    is.logical(state),
+    msg = "The parameter 'state' must be a logical TRUE or FALSE value."
+  )
 
-    assertthat::assert_that(
-      ## This is different form validate_state(state=state) assertions!
-        is.logical(state),
-        msg = "The parameter 'state' must be a logical TRUE or FALSE value."
-    )
+  base_url <- 'https://api.spotify.com/v1/me/player/shuffle'
+  params <- list(
+    state = state,
+    device_id = device_id
+  )
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
+  stop_for_status(res)
 
-    base_url <- 'https://api.spotify.com/v1/me/player/shuffle'
-    params <- list(
-        state = state,
-        device_id = device_id
-        )
-    res <- RETRY('PUT', base_url,
-                 spotify_auth(authorization),
-                 query = params,
-                 encode = 'json')
-    stop_for_status(res)
-
-    res
+  res
 }
 
 #' Set User Playback Mode
@@ -232,21 +247,25 @@ toggle_my_shuffle <- function(state,
 #' error message if the operation was not successful.
 #' @export
 
-set_my_repeat_mode <- function(state,
-                               device_id = NULL,
-                               authorization = get_spotify_authorization_code()
-                               ) {
-  validate_parameters(state=state)
+set_my_repeat_mode <- function(
+  state,
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  validate_parameters(state = state)
 
   base_url <- 'https://api.spotify.com/v1/me/player/repeat'
   params <- list(
     state = state,
     device_id = device_id
   )
-  res <- RETRY('PUT', base_url,
-               spotify_auth(authorization),
-               query = params,
-               encode = 'json')
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
 
   stop_for_status(res)
   res
@@ -268,22 +287,25 @@ set_my_repeat_mode <- function(state,
 #' error message if the operation was not successful.
 #' @export
 
-set_my_volume <- function(volume_percent = 50,
-                          device_id = NULL,
-                          authorization = get_spotify_authorization_code()
-                          ) {
-
-  validate_parameters(volume_percent=volume_percent)
+set_my_volume <- function(
+  volume_percent = 50,
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  validate_parameters(volume_percent = volume_percent)
 
   base_url <- 'https://api.spotify.com/v1/me/player/volume'
   params <- list(
     volume_percent = volume_percent,
     device_id = device_id
   )
-  res <- RETRY('PUT', base_url,
-               spotify_auth(authorization),
-               query = params,
-               encode = 'json')
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
   stop_for_status(res)
   res
 }
@@ -303,21 +325,26 @@ set_my_volume <- function(volume_percent = 50,
 #' error message if the operation was not successful.
 #' @export
 
-skip_my_playback <- function(device_id = NULL,
-                             authorization = get_spotify_authorization_code()
-                             ) {
-    base_url <- 'https://api.spotify.com/v1/me/player/next'
+skip_my_playback <- function(
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  base_url <- 'https://api.spotify.com/v1/me/player/next'
 
-    params <- list(
-        device_id = device_id
-    )
+  params <- list(
+    device_id = device_id
+  )
 
-    res <- RETRY('POST', base_url, spotify_auth(authorization),
-                 query = params,
-                 encode = 'json')
-    stop_for_status(res)
+  res <- RETRY(
+    'POST',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
+  stop_for_status(res)
 
-    res
+  res
 }
 
 #' Skips to previous track in the user’s queue.
@@ -330,21 +357,25 @@ skip_my_playback <- function(device_id = NULL,
 #' error message if the operation was not successful.
 #' @export
 
-skip_my_playback_previous <- function(device_id = NULL,
-                                      authorization = get_spotify_authorization_code()
-                                      ) {
+skip_my_playback_previous <- function(
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  base_url <- 'https://api.spotify.com/v1/me/player/previous'
 
-    base_url <- 'https://api.spotify.com/v1/me/player/previous'
+  params <- list(
+    device_id = device_id
+  )
 
-    params <- list(
-        device_id = device_id
-    )
-
-    res <- RETRY('POST', base_url,
-                 spotify_auth(authorization), query = params, encode = 'json')
-    stop_for_status(res)
-    res
-
+  res <- RETRY(
+    'POST',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
+  stop_for_status(res)
+  res
 }
 
 #' Skips to previous track in the user’s queue.
@@ -367,19 +398,18 @@ skip_my_playback_previous <- function(device_id = NULL,
 #' @family player functions
 #' @export
 
-start_my_playback <- function(device_id = NULL,
-                              context_uri = NULL,
-                              uris = NULL,
-                              offset = NULL,
-                              position_ms = NULL,
-                              authorization = get_spotify_authorization_code()
-                              ) {
-
-  validate_parameters ( offset = offset,
-                        position_ms = position_ms )
+start_my_playback <- function(
+  device_id = NULL,
+  context_uri = NULL,
+  uris = NULL,
+  offset = NULL,
+  position_ms = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  validate_parameters(offset = offset, position_ms = position_ms)
 
   base_url <- 'https://api.spotify.com/v1/me/player/play'
-  query_params = list(
+  query_params <- list(
     device_id = device_id
   )
   body_params <- list(
@@ -388,9 +418,14 @@ start_my_playback <- function(device_id = NULL,
     offset = offset,
     position_ms = position_ms
   )
-  res <- RETRY('PUT', base_url, query = query_params,
-               spotify_auth(authorization),
-               body = body_params, encode = 'json')
+  res <- RETRY(
+    'PUT',
+    base_url,
+    query = query_params,
+    spotify_auth(authorization),
+    body = body_params,
+    encode = 'json'
+  )
 
   stop_for_status(res)
 
@@ -413,24 +448,28 @@ start_my_playback <- function(device_id = NULL,
 #' error message if the operation was not successful.
 #' @export
 
-transfer_my_playback <- function(device_ids,
-                                 play = FALSE,
-                                 authorization = get_spotify_authorization_code()
-                                 ) {
+transfer_my_playback <- function(
+  device_ids,
+  play = FALSE,
+  authorization = get_spotify_authorization_code()
+) {
+  base_url <- 'https://api.spotify.com/v1/me/player/'
 
-    base_url <- 'https://api.spotify.com/v1/me/player/'
+  params <- list(
+    device_ids = list(device_ids),
+    play = play
+  )
 
-    params <- list(
-        device_ids = list(device_ids),
-        play = play
-    )
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    body = params,
+    encode = 'json'
+  )
+  stop_for_status(res)
 
-    res <- RETRY('PUT', base_url,
-                 spotify_auth(authorization),
-                 body = params, encode = 'json')
-    stop_for_status(res)
-
-    res
+  res
 }
 
 #' Seeks to the given position in the user’s currently playing track.
@@ -449,23 +488,27 @@ transfer_my_playback <- function(device_ids,
 #' error message if the operation was not successful.
 #' @export
 
-seek_to_position <- function(position_ms,
-                             device_id = NULL,
-                             authorization = get_spotify_authorization_code()
-                             ) {
-
-  validate_parameters(position_ms=position_ms)
+seek_to_position <- function(
+  position_ms,
+  device_id = NULL,
+  authorization = get_spotify_authorization_code()
+) {
+  validate_parameters(position_ms = position_ms)
 
   base_url <- 'https://api.spotify.com/v1/me/player/seek'
 
   params <- list(
-        position_ms = position_ms,
-        device_id = device_id
-        )
+    position_ms = position_ms,
+    device_id = device_id
+  )
 
-  res <- RETRY('PUT', base_url,
-               spotify_auth(authorization),
-               query = params, encode = 'json')
+  res <- RETRY(
+    'PUT',
+    base_url,
+    spotify_auth(authorization),
+    query = params,
+    encode = 'json'
+  )
 
   stop_for_status(res)
 

@@ -29,20 +29,22 @@
 #' @family personalization functions
 #' @export
 
-get_my_top_artists_or_tracks <- function(type = 'artists',
-                                         limit = 20,
-                                         offset = 0,
-                                         time_range = 'medium_term',
-                                         authorization = get_spotify_authorization_code(),
-                                         include_meta_info = FALSE) {
-
-
- ## Assertions in assertions.R
-    validate_parameters(limit=limit,
-                        offset=offset,
-                        time_range=time_range,
-                        artists_or_tracks = type,
-                        include_meta_info = include_meta_info)
+get_my_top_artists_or_tracks <- function(
+    type = 'artists',
+    limit = 20,
+    offset = 0,
+    time_range = 'medium_term',
+    authorization = get_spotify_authorization_code(),
+    include_meta_info = FALSE
+) {
+    ## Assertions in assertions.R
+    validate_parameters(
+        limit = limit,
+        offset = offset,
+        time_range = time_range,
+        artists_or_tracks = type,
+        include_meta_info = include_meta_info
+    )
 
     base_url <- 'https://api.spotify.com/v1/me/top'
 
@@ -53,22 +55,29 @@ get_my_top_artists_or_tracks <- function(type = 'artists',
     )
     url <- str_glue('{base_url}/{type}')
 
-    res <- RETRY('GET', url,
-                 spotify_auth(authorization),
-                 query = params,
-                 encode = 'json')
+    res <- RETRY(
+        'GET',
+        url,
+        spotify_auth(authorization),
+        query = params,
+        encode = 'json'
+    )
 
     stop_for_status(res)
 
-    res <- fromJSON(content(res, as = 'text', encoding = 'UTF-8'),
-                    flatten = TRUE)
+    res <- fromJSON(
+        content(res, as = 'text', encoding = 'UTF-8'),
+        flatten = TRUE
+    )
 
     if (!include_meta_info) {
         res <- res$items
     }
 
     if (type == 'artists') {
-        res <- res %>% rowwise() %>% mutate(genres = list(tibble('genre' = genres)))
+        res <- res %>%
+            rowwise() %>%
+            mutate(genres = list(tibble('genre' = genres)))
     }
     res
 }
