@@ -62,7 +62,7 @@ verify_result <- function(res) {
 
 spotify_auth <- function(authorization) {
     if (inherits(authorization, 'Token')) {
-        return(httr::spotify_auth(authorization))
+        return(httr::config(token = authorization))
     }
     httr::add_headers(Authorization = paste('Bearer', authorization))
 }

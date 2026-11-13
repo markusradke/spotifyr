@@ -536,15 +536,6 @@ get_recommendations <- function(
         target_valence = target_valence
     )
     res <- RETRY(
-        "GET",
-        base_url,
-        httr::add_headers(Authorization = paste("Bearer", authorization)),
-        query = params,
-        encode = 'json',
-        terminate_on = c(401, 403, 404)
-    )
-
-    res <- RETRY(
         'GET',
         base_url,
         query = params,
